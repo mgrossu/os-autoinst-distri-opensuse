@@ -389,6 +389,23 @@ sub is_sle {
     return check_version($query, $version, qr/\d{2}(?:-sp\d)?/);
 }
 
+=head2 is_bci
+
+Check if distribution is BCI with optional filter for:
+Version: <=12-sp3 =12-sp1 >11-sp1 >=15 15+ (>=15 and 15+ are equivalent)
+=cut
+
+sub is_bci {
+    my $query = shift;
+    my $version = shift // get_var('VERSION');
+
+    return 0 unless check_var('DISTRI', 'bci');
+    return 1 unless $query;
+
+    # Version check
+    return check_version($query, $version, qr/\d{2}(?:-sp\d)?/);
+}
+
 =head2 is_transactional
 
 Returns true if called on a transactional server
