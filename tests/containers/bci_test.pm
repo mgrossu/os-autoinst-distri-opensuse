@@ -32,7 +32,7 @@ sub run_tox_cmd {
     my $bci_reruns = get_var('BCI_RERUNS', 3);
     my $bci_reruns_delay = get_var('BCI_RERUNS_DELAY', 10);
     my $tox_out = "tox_output.txt";
-    my $cmd = "tox -e $env -- -rxX -n auto";
+    my $cmd = "tox -e $env -- -rxX -n auto --durations=25 --durations-min=600.0";
     $cmd .= " -k \"$bci_marker\"" if $bci_marker;
     $cmd .= " --reruns $bci_reruns --reruns-delay $bci_reruns_delay";
     $cmd .= "| tee $tox_out";
@@ -95,6 +95,7 @@ sub run {
     $version = lc($version);
     assert_script_run("export OS_VERSION=$version");
     assert_script_run("export TARGET=$bci_target");
+    assert_script_run("export PULL_ALWAYS=0");
     assert_script_run("export BCI_DEVEL_REPO=$bci_devel_repo") if $bci_devel_repo;
 
     # Run environment specific tests
