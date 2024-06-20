@@ -77,6 +77,7 @@ sub run {
     my $engine = $args->{runtime};
     my $bci_devel_repo = get_var('BCI_DEVEL_REPO');
     my $bci_tests_repo = get_required_var('BCI_TESTS_REPO');
+    my $bci_tests_branch = get_var('BCI_TESTS_BRANCH');
     if (my $bci_repo = get_var('REPO_BCI')) {
         $bci_devel_repo = "http://openqa.suse.de/assets/repo/$bci_repo";
     }
@@ -91,7 +92,14 @@ sub run {
     assert_script_run('source bci/bin/activate') if ($bci_virtualenv);
 
     record_info('Run', "Starting the tests for the following environments:\n$test_envs");
-    assert_script_run("cd /root/BCI-tests && git fetch && git reset --hard");
+    if ($bci_tests_branch) {
+        script_run('rm -rf /root/BCI-tests');
+        assert_script_run("git clone -b $bci_tests_branch -q --depth 1 $bci_tests_repo /root/BCI-tests");
+        assert_script_run("cd /root/BCI-tests");
+    }
+    else{
+        assert_script_run("cd /root/BCI-tests && git fetch && git reset --hard");
+    }
     assert_script_run("export TOX_PARALLEL_NO_SPINNER=1");
     assert_script_run("export CONTAINER_RUNTIME=$engine");
     $version =~ s/-SP/./g;
