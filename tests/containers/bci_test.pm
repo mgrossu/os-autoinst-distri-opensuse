@@ -97,7 +97,7 @@ sub run {
     my $version = get_required_var('VERSION');
     my $test_envs = get_required_var('BCI_TEST_ENVS');
     my $bci_virtualenv = get_var('BCI_VIRTUALENV', 0);
-    my $bci_tests_branch = get_var('BCI_TESTS_BRANCH', 'fips_sp6_digest_error');
+    my $bci_tests_branch = get_var('BCI_TESTS_BRANCH', 'origin/kiwi_root');
     return if ($test_envs eq '-');
 
     reset_container_network_if_needed($engine);
