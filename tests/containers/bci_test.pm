@@ -97,7 +97,7 @@ sub run {
     my $version = get_required_var('VERSION');
     my $test_envs = get_required_var('BCI_TEST_ENVS');
     my $bci_virtualenv = get_var('BCI_VIRTUALENV', 0);
-    my $bci_tests_branch = get_var('BCI_TESTS_BRANCH', 'origin/main');
+    my $bci_tests_branch = get_var('BCI_TESTS_BRANCH', 'fips-no-xfail-sp4');
     return if ($test_envs eq '-');
 
     reset_container_network_if_needed($engine);
@@ -105,7 +105,14 @@ sub run {
     assert_script_run('source bci/bin/activate') if ($bci_virtualenv);
 
     record_info('Run', "Starting the tests for the following environments:\n$test_envs");
-    assert_script_run("cd /root/BCI-tests && git fetch && git reset --hard $bci_tests_branch");
+   
+    unless ($bci_tests_branch eq 'origin/main') {
+        script_run('rm -rf /root/BCI-tests');
+        assert_script_run("git clone -b $bci_tests_branch -q --depth 1 $bci_tests_repo /root/BCI-tests");
+        assert_script_run("cd /root/BCI-tests");
+    } else {
+        assert_script_run("cd /root/BCI-tests && git fetch && git reset --hard $bci_tests_branch");
+    }
     assert_script_run("export TOX_PARALLEL_NO_SPINNER=1");
     assert_script_run("export CONTAINER_RUNTIME=$engine");
     $version =~ s/-SP/./g;
